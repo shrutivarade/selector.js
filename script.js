@@ -1,26 +1,9 @@
-
 var image = document.getElementById('img1');
 var canvas = document.getElementById('canvas');
-var effective_image_width = 4032;
-var effective_image_height = 3024;
-
-var th_left = 600;
-var th_top = 600;
-var th_right = 2000;
-var th_bottom = 1300;
-
-var th_width = th_right - th_left;
-var th_height = th_bottom - th_top;
-
 var rect={};
 var handleRadius = 10
-
-//hidden or text inputs
-var h_th_left = 164;
-var h_th_top = 910;
-var h_th_right = 1995;
-var h_th_bottom = 2739;
-
+var dragTL = dragBL = dragTR = dragBR = false;
+var dragWholeRect = false;
 
 canvas.onmousedown = function (e) {
     console.log(`${e.x} and ${e.y}`);
@@ -30,33 +13,43 @@ window.addEventListener('load',init)
 
 
 function init(){
-    // canvas.addEventListener('mousedown', mouseDown, false);
-    // canvas.addEventListener('mouseup', mouseUp, false);
-    // canvas.addEventListener('mousemove', mouseMove, false);
+    canvas.addEventListener('mousedown', mouseDown, false);
+    canvas.addEventListener('mouseup', mouseUp, false);
+    canvas.addEventListener('mousemove', mouseMove, false);
     initCanvas();
     initRect();
     drawRectInCanvas();
 }
 
+
+//Setup canvas, Setup and draw selection box
+
 function initCanvas(){
+
+    //Set height and width of canvas same as that of image.
     canvas.height = image.height;
     canvas.width = image.width;
+
+    //Set Top and left fpr the Canvas
     canvas.style.top = image.offsetTop + "px";;
     canvas.style.left = image.offsetLeft + "px";
+
 }
 
 function initRect(){
-  var ratio_w = canvas.width / effective_image_width;
-  var ratio_h = canvas.height / effective_image_height;
-//   //BORDER OF SIZE 6!
-  rect.height = th_height*ratio_h-6
-  rect.width = th_width*ratio_w-6
-  rect.top = th_top*ratio_h+3
-  rect.left = th_left*ratio_w+3
+
+  //Set H,W,T,L for the bounding box.
+  rect.height = 200;
+  rect.width = 200;
+  rect.top = canvas.height/2;
+  rect.left= canvas.width/2;
+  console.log("Rect",rect);
+
 }
 
 function drawRectInCanvas()
 {
+  //Initialize canvas with context
   var ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath();
@@ -66,8 +59,8 @@ function drawRectInCanvas()
   ctx.rect(rect.left, rect.top, rect.width, rect.height);
   ctx.fill();
   ctx.stroke();
+  //Draw call
   drawHandles();
-  updateHiddenInputs()
 }
 
 function drawHandles() {
@@ -85,12 +78,123 @@ function drawCircle(x, y, radius) {
     ctx.fill();
 }
 
-function updateHiddenInputs(){
-    var inverse_ratio_w =  effective_image_width / canvas.width;
-    var inverse_ratio_h = effective_image_height / canvas.height ;
-    h_th_left.value = Math.round(rect.left * inverse_ratio_w)
-    h_th_top.value = Math.round(rect.top * inverse_ratio_h)
-    h_th_right.value = Math.round((rect.left + rect.width) * inverse_ratio_w)
-    h_th_bottom.value = Math.round((rect.top + rect.height) * inverse_ratio_h)
-  }
 
+//Mouse Interactions
+
+function mouseDown(e) {
+  var pos = getMousePos(this,e);
+  mouseX = pos.x;
+  mouseY = pos.y;
+
+  // mouseX = e.x;
+  // mouseY = e.y;
+
+  // 0. inside movable rectangle
+  if (checkInRect(mouseX, mouseY, rect)){
+      dragWholeRect=true;
+      startX = mouseX;
+      startY = mouseY;
+  }
+  // 1. top left
+  else if (checkCloseEnough(mouseX, rect.left) && checkCloseEnough(mouseY, rect.top)) {
+      dragTL = true;
+  }
+  // 2. top right
+  else if (checkCloseEnough(mouseX, rect.left + rect.width) && checkCloseEnough(mouseY, rect.top)) {
+      dragTR = true;
+  }
+  // 3. bottom left
+  else if (checkCloseEnough(mouseX, rect.left) && checkCloseEnough(mouseY, rect.top + rect.height)) {
+      dragBL = true;
+  }
+  // 4. bottom right
+  else if (checkCloseEnough(mouseX, rect.left + rect.width) && checkCloseEnough(mouseY, rect.top + rect.height)) {
+      dragBR = true;
+  }
+  // (5.) none of them
+  else {
+      // handle not resizing
+  }
+  drawRectInCanvas();
+}
+
+function getMousePos(canvas,evt) {
+  var clx, cly;
+  clx = evt.clientX;
+  cly = evt.clientY;
+
+  var boundingRect = canvas.getBoundingClientRect();
+  return {
+    x: clx - boundingRect.left,
+    y: cly - boundingRect.top
+  };
+}
+
+function checkInRect(x, y, r) {
+  return (x>r.left && x<(r.width+r.left)) && (y>r.top && y<(r.top+r.height));
+}
+
+function checkCloseEnough(p1, p2) {
+  return Math.abs(p1 - p2) < handleRadius;
+}
+
+
+function mouseMove(e) { 
+  var pos = getMousePos(this,e);
+  mouseX = pos.x;
+  mouseY = pos.y;
+  if (dragWholeRect) {
+      e.preventDefault();
+      e.stopPropagation();
+      dx = mouseX - startX;
+      dy = mouseY - startY;
+      if ((rect.left+dx)>0 && (rect.left+dx+rect.width)<canvas.width){
+        rect.left += dx;
+      }
+      if ((rect.top+dy)>0 && (rect.top+dy+rect.height)<canvas.height){
+        rect.top += dy;
+      }
+      startX = mouseX;
+      startY = mouseY;
+  } else if (dragTL) {
+      e.preventDefault();
+      e.stopPropagation();
+      var newSide = (Math.abs(rect.left+rect.width - mouseX)+Math.abs(rect.height + rect.top - mouseY))/2;
+      if (newSide>150){
+        rect.left = rect.left + rect.width - newSide;
+        rect.top = rect.height + rect.top - newSide;
+        rect.width = rect.height = newSide;
+      }
+  } else if (dragTR) {
+      e.preventDefault();
+      e.stopPropagation();
+      var newSide = (Math.abs(mouseX-rect.left)+Math.abs(rect.height + rect.top - mouseY))/2;
+      if (newSide>150){
+          rect.top = rect.height + rect.top - newSide;
+          rect.width = rect.height = newSide;
+      }
+  } else if (dragBL) {
+      e.preventDefault();
+      e.stopPropagation();
+      var newSide = (Math.abs(rect.left+rect.width - mouseX)+Math.abs(rect.top - mouseY))/2;
+      if (newSide>150)
+      {
+        rect.left = rect.left + rect.width - newSide;
+        rect.width = rect.height = newSide;
+      }
+  } else if (dragBR) {
+      e.preventDefault();
+      e.stopPropagation();
+      var newSide = (Math.abs(rect.left - mouseX)+Math.abs(rect.top - mouseY))/2;
+      if (newSide>150)
+      {
+       rect.width = rect.height = newSide;
+      }      
+  }
+  drawRectInCanvas();
+}
+
+function mouseUp(e) {
+  dragTL = dragTR = dragBL = dragBR = false;
+  dragWholeRect = false;
+}
