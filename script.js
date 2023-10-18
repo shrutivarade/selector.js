@@ -41,8 +41,10 @@ function initRect(){
   //Set H,W,T,L for the bounding box.
   rect.height = 200;
   rect.width = 200;
-  rect.top = canvas.height/2;
-  rect.left= canvas.width/2;
+  // rect.top = canvas.height/2;
+  // rect.left= canvas.width/2;
+  rect.left = (window.innerWidth - rect.width) / 2;
+  rect.top = (window.innerHeight - rect.height) / 2;
   console.log("Rect",rect);
 
 }

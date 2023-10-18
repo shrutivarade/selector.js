@@ -2,12 +2,28 @@
   <head>
     <title>Selector: The Bounding Box</title>
     <style>
-      body {
+      /* body {
         background-color:#ffffff;
         margin: 0;
         padding: 0;
         height: 100%;
         overflow: hidden !important; 
+      } */
+
+      .image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100vw; /* Viewport Width */
+        height: 100vh; /* Viewport Height */
+        overflow: hidden; /* This will crop any overflowing part of the image */
+      }
+
+      .image-container img {
+        object-fit: cover; /* This will ensure the image covers the container without distortion */
+        width: auto;
+        height: 100%; /* You can adjust this value as needed */
+        min-width: 100%;
       }
     </style>
     <script async type="text/javascript" src="script.js"></script>
@@ -15,8 +31,9 @@
 	<body>
     
     <div>
-      <div class="col-md-6">
-        <img class="card-img-top" id="img1" src="spongebob.jpg" alt="img1" style="position: relative;">
+      <div class="col-md-6 image-container">
+        <img class="image" id="img1" src="spongebob.jpg" alt="img1" style="position: relative;">
+        
         <canvas id="canvas" style="position: absolute;"></canvas>
       </div>
     </div>
