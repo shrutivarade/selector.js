@@ -4,7 +4,7 @@ imgCanvas.width = window.innerWidth;
 imgCanvas.height = window.innerHeight;
 
 const image = new Image();
-image.src = '/src/images/minions.jpg';
+image.src = 'src/images/minions.jpg';
 
 image.onload = function() {
     ctx.drawImage(image, 0, 0, window.innerWidth, window.innerHeight);
