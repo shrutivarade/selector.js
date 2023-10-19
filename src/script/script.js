@@ -9,18 +9,17 @@ image.src = '/src/images/minions.jpg';
 image.onload = function() {
     ctx.drawImage(image, 0, 0, window.innerWidth, window.innerHeight);
 };
-
-
 // var image = document.getElementById('img1');
+
 var canvas = document.getElementById('canvas');
 var rect={};
 var handleRadius = 10
 var dragTL = dragBL = dragTR = dragBR = false;
 var dragWholeRect = false;
 
-canvas.onmousedown = function (e) {
-    console.log(`${e.x} and ${e.y}`);
-}
+// canvas.onmousedown = function (e) {
+//     console.log(`${e.x} and ${e.y}`);
+// }
 
 window.addEventListener('load',init)
 
@@ -32,6 +31,7 @@ function init(){
     initCanvas();
     initRect();
     drawRectInCanvas();
+    storeCoordinates();
 }
 
 
@@ -212,4 +212,13 @@ function mouseMove(e) {
 function mouseUp(e) {
   dragTL = dragTR = dragBL = dragBR = false;
   dragWholeRect = false;
+  storeCoordinates();
+}
+
+function storeCoordinates() {
+  var topLeft = { x: rect.left, y: rect.top };
+  var bottomRight = { x: rect.left + rect.width, y: rect.top + rect.height };
+
+  console.log("Top Left:", topLeft, "Bottom Right:", bottomRight);
+  
 }
