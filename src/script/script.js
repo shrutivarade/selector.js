@@ -1,4 +1,17 @@
-var image = document.getElementById('img1');
+const imgCanvas = document.getElementById('imgCanvas');
+const ctx = imgCanvas.getContext('2d');
+imgCanvas.width = window.innerWidth;
+imgCanvas.height = window.innerHeight;
+
+const image = new Image();
+image.src = '/src/images/minions.jpg';
+
+image.onload = function() {
+    ctx.drawImage(image, 0, 0, window.innerWidth, window.innerHeight);
+};
+
+
+// var image = document.getElementById('img1');
 var canvas = document.getElementById('canvas');
 var rect={};
 var handleRadius = 10

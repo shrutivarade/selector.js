@@ -19,7 +19,7 @@
         overflow: hidden; /* This will crop any overflowing part of the image */
       }
 
-      .image-container img {
+      .image-container .imgCanvas {
         object-fit: cover; /* This will ensure the image covers the container without distortion */
         width: auto;
         height: 100%; /* You can adjust this value as needed */
@@ -32,7 +32,7 @@
     
     <div>
       <div class="col-md-6 image-container">
-        <img class="image" id="img1" src="/src/images/back_bay.jpeg" alt="img1" style="position: relative;">
+        <canvas id="imgCanvas" style="position: absolute;"></canvas>
         
         <canvas id="canvas" style="position: absolute;"></canvas>
       </div>
